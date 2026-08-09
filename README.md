@@ -1,100 +1,106 @@
-# FlightTracker - Plataforma de Monitoreo y Analisis Predictivo de Trafico Aereo
+# FlightTracker - Plataforma de Monitoreo y Análisis Predictivo de Tráfico Aéreo
 
 ---
 
-## Descripcion del Proyecto
+## 📋 Descripción del Proyecto
 
-FlightTracker es una plataforma integral de monitoreo y analisis de trafico aereo que integra datos en tiempo real con datos historicos para proporcionar una vision unificada de la operacion aerea. El proyecto se desarrolla como parte del curso Proyecto Ingenieria de Datos (SI4002) de la Universidad EAFIT.
+**FlightTracker** es una plataforma integral de monitoreo y análisis de tráfico aéreo que integra datos en tiempo real con datos históricos para proporcionar una visión unificada de la operación aérea. El proyecto se desarrolla como parte del curso **Proyecto Ingeniería de Datos (SI4002)** de la Universidad EAFIT.
 
-El sistema esta disenado para resolver los siguientes desafios del sector de la aviacion comercial:
-
-- Monitoreo en tiempo real: Visualizacion de la ubicacion y estado de vuelos activos.
-- Analisis historico: Identificacion de patrones de retraso por aerolinea, ruta y causas especificas.
-- Alertas tempranas: Notificacion automatica ante indicios de retrasos o desviaciones.
-- Consumo de datos: API REST y dashboards para diferentes stakeholders.
-
----
-
-## Fuentes de Datos Propuestas
-
-| Fuente | Tipo | Descripcion |
-|--------|------|-------------|
-| OpenSky Network API | Streaming (Tiempo Real) | Datos ADS-B de vuelos activos (posicion, altitud, velocidad, etc.) |
-| BTS On-Time Performance | Batch (Historico) | Registros detallados de vuelos comerciales domesticos en EE.UU. |
-| OpenFlights Airports | Maestro (Estatica) | Listado de aeropuertos internacionales con coordenadas y codigos IATA/ICAO |
+El sistema está diseñado para resolver los siguientes desafíos del sector de la aviación comercial:
+- **Monitoreo en tiempo real**: Visualización de la ubicación y estado de vuelos activos.
+- **Análisis histórico**: Identificación de patrones de retraso por aerolínea, ruta y causas específicas.
+- **Alertas tempranas**: Notificación automática ante indicios de retrasos o desviaciones.
+- **Consumo de datos**: API REST y dashboards para diferentes stakeholders.
 
 ---
 
-## Arquitectura Conceptual
+## 📁 Estructura del Repositorio
 
-El proyecto propone una arquitectura hibrida que combina procesamiento batch y streaming, siguiendo el patron Lambda junto con un enfoque de Data Lakehouse. La arquitectura se organiza en las siguientes capas:
+El repositorio está organizado por **Sprints** de trabajo:
 
-1.  Capa de Ingesta
-    - Ingesta en tiempo real: Consumo de la API de OpenSky mediante un productor que publica los eventos en un sistema de mensajeria.
-    - Ingesta batch: Descarga programada de archivos CSV del BTS mediante un orquestador de flujos de trabajo.
-
-2.  Capa de Almacenamiento
-    - Data Lakehouse con zonas Bronze (datos crudos), Silver (datos depurados y validados) y Gold (datos modelados para analisis).
-    - Formato de tabla abierto que soporte transaccionalidad y actualizaciones incrementales.
-
-3.  Capa de Procesamiento
-    - Procesamiento streaming: Calculo de metricas en ventanas deslizantes, deteccion de anomalias y generacion de alertas en tiempo real.
-    - Procesamiento batch: Limpieza, transformacion y construccion de un modelo analitico en estrella para consultas historicas.
-
-4.  Capa de Consumo (Serving Layer)
-    - API REST para consultar el estado de vuelos, alertas activas y metricas agregadas.
-    - Dashboard ejecutivo con indicadores clave de rendimiento (KPIs).
-    - Mapa interactivo para visualizar la posicion de vuelos en tiempo real con codificacion de colores segun su nivel de retraso.
+```
+Sicard/
+├── README.md                                # Documentación general del proyecto
+├── Sprint-0/
+│   ├── Sprint0.pdf                          # Propuesta y arquitectura del proyecto
+│   └── sicard.docx                          # Documentación preliminar
+└── Sprint-1/
+    ├── FlightTracker_Perfilamiento.ipynb    # Notebook ejecutable principal de perfilamiento
+    ├── README.md                            # Documentación detallada del Sprint 1
+    └── data/
+        └── bts_flights.csv                  # Dataset histórico real (Enero 2026 - 544,003 registros)
+```
 
 ---
 
-## Tecnologias Consideradas
+## 📊 Fuentes de Datos Evaluadas (Sprint 1)
 
-| Capa | Tecnologias Propuestas |
-|------|------------------------|
-| Ingesta Streaming | Apache Kafka / Redpanda |
-| Ingesta Batch | Apache Airflow / Prefect |
-| Almacenamiento | Delta Lake / Apache Iceberg sobre S3 o GCS |
-| Procesamiento Streaming | Spark Structured Streaming / Apache Flink |
-| Procesamiento Batch | Apache Spark / AWS Glue |
-| Transformacion (ELT) | dbt |
-| API | FastAPI / Flask |
-| Visualizacion | Power BI / Looker Studio / Kepler.gl |
-| CI/CD | GitHub Actions / GitLab CI |
-| Monitoreo | Prometheus + Grafana / AWS CloudWatch |
-| Lenguajes | Python, SQL, PySpark |
+| Fuente | Tipo | Naturaleza | Volumen Procesado | DQS | Estado de Calidad |
+|:---|:---|:---|:---|:---:|:---:|
+| **OpenFlights** | Maestra | Batch / Estática | 14,110 aeropuertos, 6,162 aerolíneas, 67,663 rutas | **0.9572** | 🟢 EXCELENTE |
+| **OpenSky Network** | Telemetría | Streaming / Tiempo Real | Snapshot API REST (vuelos activos) | **0.9248** | 🟢 EXCELENTE |
+| **BTS On-Time Performance** | Histórica | Batch Histórico | **544,003 registros (Enero 2026)** | **0.9712** | 🟢 EXCELENTE |
 
 ---
 
-## Equipo
+## 🏆 Resumen de Calidad y Data Quality Score (DQS)
+
+En el **Sprint 1** se realizó el **descubrimiento y perfilamiento de calidad de datos** evaluando 5 dimensiones clave:
+1. **Completitud** (30%): % de valores no nulos por columna.
+2. **Validez** (25%): Cumplimiento de formatos (IATA/ICAO, ISO) y rangos geográficos/físicos.
+3. **Unicidad** (20%): Ausencia de duplicados exactos y por clave primaria compuesta.
+4. **Consistencia** (15%): Uniformidad categórica y estandarización de formatos de fecha.
+5. **Exactitud** (10%): Ausencia de outliers no plausibles y valores físicamente imposibles.
+
+$$\text{DQS} = 0.30(\text{Completitud}) + 0.25(\text{Validez}) + 0.20(\text{Unicidad}) + 0.15(\text{Consistencia}) + 0.10(\text{Exactitud})$$
+
+---
+
+## 🔍 Principales Hallazgos de Calidad
+
+* **OpenFlights**: Uso de `\N` para datos nulos en IATA/ICAO/Alias, e inclusión de estaciones de tren/ferrys (`type != 'airport'`).
+* **OpenSky Network**: Latitud y longitud son nulas cuando el avión está en pista (`on_ground == True`), lo cual es comportamiento normal de transpondedores ADS-B.
+* **BTS On-Time Performance**: Nulos semánticos en tiempos de retraso para los **25,635 vuelos cancelados** en Enero 2026 (~4.71% de la operación).
+
+---
+
+## 🛠️ Plan de Acción para Pipelines ETL (Sprint 2)
+
+* **OpenFlights**: Reemplazo sintáctico de `\N` por `NULL`, normalización de nombres de países y filtrado por `type == 'airport'`.
+* **OpenSky**: Separación de flujos (aviones en pista vs. en vuelo) y descarte de lecturas anómalas (`velocity.between(0, 1500)`).
+* **BTS**: Casteo de `FL_DATE` a fecha pura, asignación de bandera `IS_CANCELLED` y deduplicación por clave primaria compuesta.
+
+---
+
+## 🏗️ Arquitectura Conceptual
+
+El proyecto propone una arquitectura híbrida que combina procesamiento batch y streaming (Patrón Lambda / Lakehouse):
+1. **Capa de Ingesta**: Productores streaming para OpenSky Network y orquestación batch (Airflow/Prefect) para BTS.
+2. **Capa de Almacenamiento**: Data Lakehouse con zonas Bronze, Silver y Gold en Delta Lake / Apache Iceberg.
+3. **Capa de Procesamiento**: Spark Structured Streaming y PySpark para transformaciones y analítica.
+4. **Capa de Consumo**: API REST con FastAPI, dashboard ejecutivo y mapa interactivo con seguimiento en tiempo real.
+
+---
+
+## 👥 Equipo de Trabajo
 
 | Rol | Nombre | Email EAFIT | Email Gmail |
 |-----|--------|-------------|-------------|
-| Arquitecto de Datos / Lider Tecnico | Agustin Figueroa Sierra | afigueroas@eafit.edu.co | figuesicsi@gmail.com |
-| Ingeniero de Datos - Streaming | Gabriela Lucia Martinez Mercado | glmartinem@eafit.edu.co | gabymartinez12319@gmail.com |
+| Arquitecto de Datos / Líder Técnico | Agustín Figueroa Sierra | afigueroas@eafit.edu.co | figuesicsi@gmail.com |
+| Ingeniero de Datos - Streaming | Gabriela Lucía Martínez Mercado | glmartinem@eafit.edu.co | gabymartinez12319@gmail.com |
 | Ingeniero de Datos - Batch | Juan Carlos Muñoz Trejos | jcmunozt@eafit.edu.co | jcarlosmt00@gmail.com |
-| Responsable de Gobernanza y Calidad | Juan Simon Ospina Martinez | jsospinam@eafit.edu.co | juansimonreal@gmail.com |
+| Responsable de Gobernanza y Calidad | Juan Simón Ospina Martínez | jsospinam@eafit.edu.co | juansimonreal@gmail.com |
 
 ---
 
-## Estado Actual del Proyecto
+## 📅 Estado Actual del Proyecto
 
-El proyecto se encuentra en la fase inicial (Sprint 0). Se ha completado el documento preliminar que incluye la definicion del problema, la identificacion de fuentes de datos, la propuesta de arquitectura y la planificacion de sprints. Los siguientes pasos inmediatos son:
-
-1.  Resolucion de dudas con el equipo docente.
-2.  Creacion del repositorio Git y configuracion inicial.
-3.  Seleccion definitiva del proveedor de nube y configuracion de cuentas.
-4.  Inicio de la fase de descubrimiento y perfilamiento de datos (Fase 2).
-5.  Elaboracion del primer prototipo de ingesta desde la API de OpenSky.
+- [x] **Sprint 0**: Propuesta inicial, arquitectura conceptual y definición del equipo.
+- [x] **Sprint 1**: Descubrimiento, perfilamiento de datos, cálculo de DQS y desarrollo del notebook de perfilamiento (`Sprint-1/FlightTracker_Perfilamiento.ipynb`).
+- [ ] **Sprint 2**: Construcción de pipelines de ingesta (Bronze/Silver) y reglas de validación en producción.
 
 ---
 
-## Licencia
+## 📄 Licencia
 
-Este proyecto se desarrolla con fines academicos. Todos los derechos reservados.
-
----
-
-## Contacto
-
-Para cualquier duda o sugerencia, por favor contacte a los miembros del equipo a traves de sus correos electronicos.
+Este proyecto se desarrolla con fines académicos para la Universidad EAFIT. Todos los derechos reservados.
