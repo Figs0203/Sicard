@@ -30,19 +30,36 @@ El **Sprint 1 (Walking Skeleton)** ha desplegado una arquitectura serverless en 
 
 ### Flujo de Datos (Batch)
 
-CSV (BTS) -> CF1 (validacion) -> Cloud Storage (RAW)
-|
-v
-Eventarc -> CF2 (split & publish) -> Pub/Sub -> CF3 (persistencia) -> Firestore
-|
-v
-Cloud Scheduler (8 AM) -> CF4 (orquestador) -> Dataproc (Spark) -> Silver (Parquet)
-|
-v
-API REST (Cloud Run) <- Firestore
-|
-v
+```
+CSV (BTS)
+    │
+    ▼
+CF1 (validación y almacenamiento en RAW)
+    │
+    ▼
+Cloud Storage (RAW)
+    │
+    ▼
+Eventarc (detecta nuevo objeto)
+    │
+    ▼
+CF2 (split & publish) ──► Pub/Sub ──► CF3 (persistencia) ──► Firestore
+    │
+    ▼
+Cloud Scheduler (8 AM)
+    │
+    ▼
+CF4 (orquestador)
+    │
+    ▼
+Dataproc (Spark) ──► Silver (Parquet)
+    │
+    ▼
+API REST (Cloud Run) ◄── Firestore
+    │
+    ▼
 Grafana (Dashboards) / Clientes HTTP
+```
 
 ---
 
