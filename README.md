@@ -104,24 +104,27 @@ DQS = 0.30(Completitud) + 0.25(Validez) + 0.20(Unicidad) + 0.15(Consistencia) + 
 
 ## Estructura del Repositorio
 
+```
 Sicard/
-├── README.md <- Este archivo
+├── README.md                          # Este archivo
 ├── Sprint-0/
-│ ├── Sprint0.pdf # Propuesta inicial y arquitectura conceptual
-│ └── sicard.docx # Documentacion preliminar
+│   ├── Sprint0.pdf                    # Propuesta inicial y arquitectura conceptual
+│   └── sicard.docx                    # Documentación preliminar
 └── Sprint-1/
-├── flighttracker-pipeline/ # Codigo fuente completo del Sprint 1
-│ ├── functions/ # Cloud Functions (validate, split, persist, orquestador)
-│ ├── spark_jobs/ # Script de ETL (PySpark)
-│ ├── api/get_flights/ # API REST (FastAPI + repositorio)
-│ ├── scripts/ # Scripts auxiliares (carga de OpenFlights)
-│ └── docs/ # Documentacion (ADR, guias)
-├── flighttracker-terraform/ # Infraestructura como codigo
-│ ├── main.tf # Recursos principales
-│ ├── variables.tf # Variables de entrada
-│ └── migration.tf # Migracion de estado (suscripciones)
-├── FlightTracker_Perfilamiento.ipynb # Notebook de perfilamiento (Fase 2)
-└── README.md # Documentacion detallada del Sprint 1
+    ├── flighttracker-pipeline/        # Código fuente completo del Sprint 1
+    │   ├── functions/                 # Cloud Functions (validate, split, persist, orquestador)
+    │   ├── spark_jobs/                # Script de ETL (PySpark)
+    │   ├── api/
+    │   │   └── get_flights/           # API REST (FastAPI + repositorio)
+    │   ├── scripts/                   # Scripts auxiliares (carga de OpenFlights)
+    │   └── docs/                      # Documentación (ADR, guías)
+    ├── flighttracker-terraform/       # Infraestructura como código
+    │   ├── main.tf                    # Recursos principales
+    │   ├── variables.tf               # Variables de entrada
+    │   └── migration.tf               # Migración de estado (suscripciones)
+    ├── FlightTracker_Perfilamiento.ipynb  # Notebook de perfilamiento (Fase 2)
+    └── README.md                      # Documentación detallada del Sprint 1
+```
 
 ---
 
