@@ -1,0 +1,37 @@
+# Terraform
+**/.terraform/
+**/*.tfstate
+**/*.tfstate.*
+**/terraform.tfvars
+**/.terraform.lock.hcl
+
+# Datos y binarios
+**/*.csv
+**/*.zip
+**/*.log
+**/*.swp
+**/*.swo
+**/*.pyc
+**/__pycache__/
+**/.cache/
+
+# Variables de entorno (secretos)
+**/.env
+**/.env.*
+**/secrets/
+
+# Archivos grandes (BTS)
+**/bts_flights*.csv
+**/test_*.csv
+
+# Configuraciones locales
+**/.vscode/
+**/.idea/
+
+# Comprimidos
+**/*.tar.gz
+**/*.tgz
+
+# Estado de Terraform (contiene info sensible)
+**/terraform.tfstate
+**/terraform.tfstate.backup
