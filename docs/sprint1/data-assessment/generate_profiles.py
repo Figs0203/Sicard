@@ -57,9 +57,10 @@ def safe_int(value: Any) -> int | None:
 def parse_bts_date(value: str | None) -> datetime | None:
     if not value:
         return None
-    for fmt in ("%Y-%m-%d", "%m/%d/%Y"):
+    cleaned = value.strip()
+    for fmt in ("%Y-%m-%d", "%m/%d/%Y", "%m/%d/%Y %I:%M:%S %p"):
         try:
-            return datetime.strptime(value, fmt)
+            return datetime.strptime(cleaned, fmt)
         except ValueError:
             continue
     return None
