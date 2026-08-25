@@ -201,7 +201,7 @@ resource "google_cloudfunctions2_function" "validate_and_persist" {
 resource "google_cloudfunctions2_function" "start_batch_pipeline" {
   name        = "start_batch_pipeline"
   location    = "us-east1"
-  description = "Orquesta la ejecucion diaria del pipeline batch"
+  description = "Orquesta la ejecución diaria del pipeline batch"
 
   build_config {
     runtime     = "python311"
