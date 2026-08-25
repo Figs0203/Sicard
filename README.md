@@ -271,6 +271,12 @@ Guardrails:
 - Validation workflow: `docs/sprint1/evidencias/12-validation-workflow-pass.md`
 - Destroy guardrails: `docs/sprint1/evidencias/13-destroy-workflow-guardrails.md`
 
+## Mapeo de negocio
+
+La relacion entre pregunta de negocio, fuente, transformacion y producto quedo documentada en:
+
+- `docs/sprint1/arquitectura/business-question-mapping.md`
+
 ## Desviaciones aceptadas
 
 Las desviaciones formales de Sprint 1 quedaron consolidadas en:

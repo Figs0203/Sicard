@@ -371,3 +371,9 @@ Documento:
 La evidencia operativa del skeleton near-real-time y de la desviacion por timeout se encuentra en:
 
 `docs/sprint1/evidencias/08-opensky-streaming-deviation.md`
+
+### 10.5 Matriz de preguntas de negocio
+
+La matriz que relaciona pregunta de negocio, fuente, procesamiento, storage o serving y producto demostrable se encuentra en:
+
+`docs/sprint1/arquitectura/business-question-mapping.md`
