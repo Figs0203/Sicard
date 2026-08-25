@@ -71,6 +71,7 @@ Sprint 1 entrega un walking skeleton operativo de FlightTracker sobre GCP. El ci
 
 - `docs/sprint1/evidencias/02-firestore-serving-normalization.md`
 - `docs/sprint1/evidencias/03-validacion-skeleton-opensky.md`
+- `docs/sprint1/evidencias/12-diagnostico-conectividad-opensky.md`
 
 ### Reproducibilidad
 

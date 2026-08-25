@@ -126,6 +126,16 @@ Solo aplica cambios si se invoca con `--apply`.
 
 ### 3. Validacion operativa
 
+En un clon nuevo, si `validate.sh` se corre sin haber ejecutado antes `deploy.sh`, `terraform validate` falla con `Missing required provider` porque no existe `.terraform/` local con los proveedores descargados. Antes de correr `validate.sh` en un entorno limpio (por ejemplo una sesion nueva de Cloud Shell), ejecuta primero:
+
+```bash
+cd infrastructure/terraform
+terraform init -backend=false
+cd ../..
+```
+
+`-backend=false` descarga los proveedores fijados en `.terraform.lock.hcl` sin conectarse al estado remoto, suficiente para validar sintaxis sin tocar el estado real.
+
 ```bash
 bash infrastructure/scripts/validate.sh \
   --project-id flighttracker-505314
@@ -255,6 +265,7 @@ Para la presentacion y la entrega, este estado debe comunicarse como:
 - `docs/sprint1/evidencias/09-batch-bts-extremo-a-extremo.md`
 - `docs/sprint1/evidencias/10-consistencia-id-vuelo.md`
 - `docs/sprint1/evidencias/11-input-productivo-sin-archivos-prueba.md`
+- `docs/sprint1/evidencias/12-diagnostico-conectividad-opensky.md`
 
 ### Decisiones tecnicas
 
