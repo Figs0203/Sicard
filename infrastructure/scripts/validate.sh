@@ -173,7 +173,20 @@ check_scheduler_job() {
 }
 
 check_dq_report_presence() {
-  find "${DQ_DIR}" -maxdepth 1 -type f ! -name '.gitkeep' | grep -q .
+  local required_files=(
+    "${DQ_DIR}/results/bts_profile.json"
+    "${DQ_DIR}/results/openflights_airlines_profile.json"
+    "${DQ_DIR}/results/openflights_airports_profile.json"
+    "${DQ_DIR}/results/opensky_profile.json"
+    "${DQ_DIR}/results/dq_summary.csv"
+  )
+  local file
+
+  for file in "${required_files[@]}"; do
+    [[ -s "${file}" ]] || return 1
+  done
+
+  return 0
 }
 
 FAILURES=0
