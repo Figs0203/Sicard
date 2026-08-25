@@ -22,8 +22,37 @@ El pendiente tecnico pasa de "algo falla en nuestra configuracion" a "la fuente 
 
 ## Limite del diagnostico
 
-La evidencia no permite afirmar la causa raiz especifica (bloqueo dirigido, politica de red del proveedor u otra). Solo permite afirmar que no hay conectividad desde Google Cloud hacia `opensky-network.org` en el momento de la prueba.
+La evidencia no permite afirmar la causa raiz especifica (bloqueo dirigido, politica de red del proveedor u otra). Solo permite afirmar que la conexion directa por `curl` desde Cloud Shell hacia `opensky-network.org` no se establece en el momento de la prueba.
+
+## Actualizacion 2026-08-25 - el productor desplegado si tiene conectividad
+
+La prueba anterior solo evalua una conexion directa por `curl` desde Cloud Shell. Es una ruta de red distinta a la que usa el servicio `opensky-producer` ya desplegado en Cloud Run.
+
+Verificacion reejecutada el mismo dia:
+
+```bash
+curl -sS -o /dev/null -w "http_code=%{http_code}\n" --max-time 20 https://opensky-network.org
+```
+
+```text
+http_code=000
+```
+
+Confirma que el timeout directo desde Cloud Shell persiste. Sin embargo, la coleccion `live_flights` muestra ingesta real y activa proveniente del productor desplegado:
+
+```bash
+curl -sS "https://get-flights-api-310107974919.us-central1.run.app/live/count"
+curl -sS "https://get-flights-api-310107974919.us-central1.run.app/live/flights?limit=5"
+```
+
+```text
+{"status":"success","count":500}
+```
+
+La respuesta de `/live/flights` incluyo aeronaves reales sobre Bolivia (`icao24=e94c8e`), Paraguay (`icao24=e8810a`) y Ecuador (`icao24=e84071`), con `processed_at` de minutos antes de la consulta - no corresponden a los eventos de prueba insertados manualmente (`abc123`, `test123`).
+
+**Nota sobre la cifra de `/live/count`:** el endpoint esta implementado en `backend/api/get_flights/main.py` como `list_live_flights(500)` seguido de `len(results)` - es decir, esta topeado en 500 y no es un conteo real de la coleccion. El resultado debe leerse como "al menos 500 documentos", nunca como una cifra exacta.
 
 ## Estado
 
-**Diagnosticado** para Sprint 1. La confirmacion de la causa raiz y la resolucion quedan como item de Sprint 2.
+**Diagnosticado con matiz** para Sprint 1: la conexion directa por `curl` desde Cloud Shell hacia OpenSky no se establece, pero el servicio productor desplegado en Cloud Run si tiene conectividad y esta ingiriendo datos reales de forma activa. La causa especifica de por que la ruta de Cloud Shell falla queda como item de Sprint 2, junto con corregir `/live/count` para que refleje un conteo real de la coleccion.
