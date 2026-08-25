@@ -238,6 +238,7 @@ Para la presentacion y la entrega, este estado debe comunicarse como:
 ### Arquitectura
 
 - `docs/sprint1/implementation.md`
+- `docs/sprint1/demo.md`
 - `docs/sprint1/arquitectura/arquitectura-referencia-final.md`
 - `docs/sprint1/arquitectura/mapeo-preguntas-negocio.md`
 - `docs/sprint1/arquitectura/mapeo-tecnologico-gcp.md`
