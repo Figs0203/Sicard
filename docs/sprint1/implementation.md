@@ -346,14 +346,27 @@ El ADR-001 documenta la decisión de utilizar Firestore como capa de serving tem
 
 `docs/decisiones/ADR-001-canonical-flight-store-and-cassandra-readiness.md`
 
-### 10.2 Enlaces de Interés
+### 10.2 ADR-002: Desviaciones aceptadas al cierre de Sprint 1
+
+El ADR-002 consolida las desviaciones formales que deben comunicarse sin ambigüedad al cierre del sprint:
+
+- Cassandra sigue pospuesta
+- Airflow o Composer no forman parte de la implementación real
+- Firestore se mantiene como store temporal
+- la topología validada usa `us-central1` y `us-east1`
+
+Documento:
+
+`docs/decisiones/ADR-002-sprint1-accepted-deviations.md`
+
+### 10.3 Enlaces de Interés
 
 - Repositorio del proyecto: [github.com/Figs0203/Sicard](https://github.com/Figs0203/Sicard)
 - Documentación de GCP: [cloud.google.com/docs](https://cloud.google.com/docs)
 - Terraform Registry: [registry.terraform.io/providers/hashicorp/google/latest](https://registry.terraform.io/providers/hashicorp/google/latest)
 - FastAPI Documentation: [fastapi.tiangolo.com](https://fastapi.tiangolo.com/)
 
-### 10.3 Evidencia de desviacion OpenSky
+### 10.4 Evidencia de desviacion OpenSky
 
 La evidencia operativa del skeleton near-real-time y de la desviacion por timeout se encuentra en:
 

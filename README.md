@@ -271,12 +271,25 @@ Guardrails:
 - Validation workflow: `docs/sprint1/evidencias/12-validation-workflow-pass.md`
 - Destroy guardrails: `docs/sprint1/evidencias/13-destroy-workflow-guardrails.md`
 
+## Desviaciones aceptadas
+
+Las desviaciones formales de Sprint 1 quedaron consolidadas en:
+
+- `docs/decisiones/ADR-002-sprint1-accepted-deviations.md`
+
+Temas cubiertos:
+
+- Cassandra pospuesta
+- Airflow o Composer no implementado
+- Firestore como store temporal
+- separacion regional `us-central1` y `us-east1`
+
 ## Restricciones y deudas abiertas
 
 - OpenSky sigue como desviacion aceptada, no como flujo productivo estable
 - Cassandra sigue documentado como target, no como implementacion cerrada
-- hay pendientes de seguridad sobre Cloud SQL y secretos
-- no se debe presentar Terraform como reproduccion total sin la validacion del equipo sobre esos pendientes
+- faltan tareas de minimo privilegio, alertamiento y cierre de deuda operativa
+- no se debe presentar Terraform como reproduccion total fuera del alcance validado del Sprint 1
 
 ## Equipo
 
