@@ -30,7 +30,7 @@ Una primera lectura de `live_flights` parecia mostrar datos reales entrando de f
 
 **1. La posicion de esas aeronaves no cambia entre consultas.** Dos llamadas a `/live/flights?limit=5` con ~10 minutos de diferencia devolvieron, para los mismos `icao24` (`e94c8e`, `e8810a`, `e84071`), el mismo `observed_at` y las mismas coordenadas/velocidad exactas. Solo `processed_at` avanzaba. Una aeronave real en vuelo no permanece en la misma posicion 10 minutos: es un snapshot antiguo que algo sigue reescribiendo, no una posicion fresca.
 
-**2. Los logs del productor no muestran ninguna llamada a OpenSky.** 
+**2. Los logs del productor solo muestran invocaciones periodicas, sin distincion de resultado.**
 
 ```bash
 gcloud logging read 'resource.type="cloud_run_revision" AND resource.labels.service_name="opensky-producer"' \
@@ -39,12 +39,28 @@ gcloud logging read 'resource.type="cloud_run_revision" AND resource.labels.serv
   --format="table(timestamp, textPayload)"
 ```
 
-Las ultimas 20 entradas (ventana 21:15-22:00 UTC) son unicamente chequeos de salud (`GET / HTTP/1.1" 200` desde `169.254.169.126`, IP interna de probe de Cloud Run) cada 5 minutos. Ninguna entrada muestra al productor intentando consultar OpenSky.
+Las ultimas 20 entradas (ventana 21:15-22:00 UTC) muestran `GET / HTTP/1.1" 200` cada 5 minutos - esa es la ruta que hace el fetch a OpenSky y publica a Pub/Sub, no un healthcheck aparte.
 
-**Conclusion de esta verificacion:** no hay evidencia de que el productor este actualmente conectado a OpenSky ni consumiendo datos frescos. Los documentos "reales" visibles en `live_flights` son un snapshot que quedo de una ejecucion anterior y que algun proceso sigue reescribiendo (mecanismo exacto sin confirmar - posible reintento o redelivery de un mensaje de Pub/Sub), no prueba de conectividad activa.
+## Causa raiz confirmada 2026-08-25 - el servicio desplegado no coincide con el codigo versionado
+
+Invocacion directa del productor:
+
+```bash
+curl -sS https://opensky-producer-sxdhziwvca-uc.a.run.app/
+```
+
+```json
+{"duration_ms":2431,"observed_at":1787666730,"schema_version":"opensky.state.v1","source":"opensky (snapshot)","states_published":13155,"states_received":13155,"states_skipped":0,"status":"success","topic":"opensky-states-v1"}
+```
+
+El campo `"source":"opensky (snapshot)"` no existe en ninguna version de `pipelines/streaming/productor_opensky/main.py` (ni `pipelines/streaming/opensky_producer/main.py` antes del renombre) - se reviso todo el historial de git del archivo y el codigo versionado siempre publica `"source": "opensky"` sin sufijo, obteniendo los datos con un fetch en vivo, sin ningun mecanismo de snapshot ni de reintento.
+
+**Esto significa que el servicio `opensky-producer` desplegado en Cloud Run ejecuta codigo distinto al que esta en el repositorio.** En algun momento se desplego una version parcheada (probablemente con `gcloud run deploy` desde codigo local, sin comitear) que agrega un mecanismo de respaldo: cuando el fetch real a OpenSky falla, en vez de devolver error, reproduce un snapshot estatico guardado (13.155 estados, `observed_at=1787666730` fijo) y lo publica igual, etiquetandolo como `opensky (snapshot)`. Esto explica el `200 success` constante, la cifra identica de estados y el `observed_at` congelado.
+
+**Consecuencia para reproducibilidad:** si el servicio `opensky-producer` se redespliega desde el codigo del repositorio (por ejemplo durante una validacion desde clon nuevo), este mecanismo de respaldo desaparece y `live_flights` dejaria de recibir incluso el snapshot de respaldo, porque no esta versionado.
 
 **Nota sobre la cifra de `/live/count`:** el endpoint esta implementado en `backend/api/get_flights/main.py` como `list_live_flights(500)` seguido de `len(results)` - es decir, esta topeado en 500 y no es un conteo real de la coleccion. El resultado debe leerse como "al menos 500 documentos", nunca como una cifra exacta.
 
 ## Estado
 
-**Diagnosticado** para Sprint 1: no hay conectividad activa confirmada hacia OpenSky, ni por `curl` directo desde Cloud Shell ni por el productor desplegado (sus logs no muestran intentos de consulta en la ventana revisada). El esqueleto live (topico, funcion de proyeccion, API) esta desplegado y operativo para datos ya persistidos, pero la ingesta continua de datos frescos de OpenSky no esta confirmada. La causa raiz y la resolucion quedan como item de Sprint 2, junto con corregir `/live/count` para que refleje un conteo real de la coleccion y con entender el mecanismo que reescribe `processed_at` sin datos nuevos.
+**Diagnosticado con causa raiz confirmada** para Sprint 1: la conectividad real hacia OpenSky sigue sin funcionar (`curl` directo da `http_code=000`). El servicio desplegado no se queda sin datos porque ejecuta una version parcheada, no versionada, que reproduce un snapshot estatico como respaldo transparente (`source: "opensky (snapshot)"`) - no es ingesta activa ni prueba de conectividad resuelta. Pendientes para Sprint 2: comitear (o retirar) ese mecanismo de respaldo para que el repositorio refleje lo que realmente esta desplegado, resolver la conectividad real (posiblemente configurando `OPENSKY_USERNAME`/`OPENSKY_PASSWORD`, que hoy nunca se configuran en ningun script de despliegue), corregir `/live/count`, y decidir si el snapshot de respaldo se documenta como comportamiento intencional o se elimina.
