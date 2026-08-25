@@ -45,6 +45,10 @@ Referencia:
 
 - Cloud SQL PostgreSQL con tablas `airlines` y `airports`
 
+Arquitectura de referencia final documentada:
+
+- `docs/sprint1/arquitectura/reference-architecture-final.md`
+
 ## Estructura del repo
 
 ```text

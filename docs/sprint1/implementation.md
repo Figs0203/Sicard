@@ -377,3 +377,9 @@ La evidencia operativa del skeleton near-real-time y de la desviacion por timeou
 La matriz que relaciona pregunta de negocio, fuente, procesamiento, storage o serving y producto demostrable se encuentra en:
 
 `docs/sprint1/arquitectura/business-question-mapping.md`
+
+### 10.6 Arquitectura de referencia final
+
+La arquitectura de referencia final, alineada con Sprint 0 pero separando claramente objetivo, implementacion Sprint 1 y desviaciones aceptadas, se encuentra en:
+
+`docs/sprint1/arquitectura/reference-architecture-final.md`
