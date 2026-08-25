@@ -35,3 +35,8 @@
 # Estado de Terraform (contiene info sensible)
 **/terraform.tfstate
 **/terraform.tfstate.backup
+
+# Excepcion: resultados de perfilamiento son evidencia de entrega
+!docs/sprint1/data-assessment/results/
+!docs/sprint1/data-assessment/results/*.csv
+!docs/sprint1/data-assessment/results/*.json
