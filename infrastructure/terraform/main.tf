@@ -88,7 +88,6 @@ resource "google_sql_database" "postgres_db" {
 resource "google_cloudfunctions2_function" "validate_and_store" {
   name        = "validate_and_store_bts"
   location    = var.data_region
-  description = "Valida y almacena archivos CSV del BTS en RAW"
 
   build_config {
     runtime     = "python311"
@@ -102,7 +101,7 @@ resource "google_cloudfunctions2_function" "validate_and_store" {
   }
 
   service_config {
-    max_instance_count = 10
+    max_instance_count = 100
     available_memory   = "256M"
     timeout_seconds    = 60
     environment_variables = {
@@ -131,7 +130,7 @@ resource "google_cloudfunctions2_function" "split_and_publish" {
 
   service_config {
     max_instance_count = 10
-    available_memory   = "512Mi"
+    available_memory   = "512M"
     timeout_seconds    = 540
     environment_variables = {
       GCP_PROJECT_ID = var.project_id
@@ -142,7 +141,7 @@ resource "google_cloudfunctions2_function" "split_and_publish" {
   event_trigger {
     trigger_region        = var.data_region
     event_type            = "google.cloud.storage.object.v1.finalized"
-    retry_policy          = "RETRY_POLICY_RETRY"
+    retry_policy          = "RETRY_POLICY_DO_NOT_RETRY"
     service_account_email = data.google_service_account.function_sa.email
 
     event_filters {
@@ -176,10 +175,10 @@ resource "google_cloudfunctions2_function" "validate_and_persist" {
   }
 
   event_trigger {
-    trigger_region        = var.region
+    trigger_region        = var.data_region
     event_type            = "google.cloud.pubsub.topic.v1.messagePublished"
     pubsub_topic          = google_pubsub_topic.topic.id
-    retry_policy          = "RETRY_POLICY_RETRY"
+    retry_policy          = "RETRY_POLICY_DO_NOT_RETRY"
     service_account_email = data.google_service_account.function_sa.email
   }
 }
