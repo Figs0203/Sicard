@@ -1,4 +1,4 @@
-# Evidencia 11 - Terraform alineado y plan limpio
+# Evidencia 06 - Terraform alineado y plan limpio
 
 **Fecha:** 2026-08-25  
 **Punto del plan:** cierre de drift posterior a `G2`

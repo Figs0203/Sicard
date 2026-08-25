@@ -1,4 +1,4 @@
-# Evidencia 10 - Deploy workflow validado en modo seguro
+# Evidencia 05 - Deploy workflow validado en modo seguro
 
 **Fecha:** 2026-08-25  
 **Punto del plan:** `G2. deploy.sh`
@@ -34,7 +34,7 @@ Esta evidencia confirma que `deploy.sh` sirve como workflow controlado de infrae
 
 La evidencia complementaria del plan alineado con el estado validado se documenta en:
 
-- `docs/sprint1/evidencias/11-terraform-plan-clean.md`
+- `docs/sprint1/evidencias/06-terraform-plan-clean.md`
 
 ## Estado
 

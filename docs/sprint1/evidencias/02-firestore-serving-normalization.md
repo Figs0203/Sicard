@@ -1,4 +1,4 @@
-# Evidencia 07 - Normalizacion de serving en Firestore
+# Evidencia 02 - Normalizacion de serving en Firestore
 
 **Fecha:** 2026-08-25  
 **Punto del plan:** 38.12 / "Normalizar datos de serving"

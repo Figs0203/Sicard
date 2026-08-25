@@ -1,4 +1,4 @@
-# Evidencia 13 - Guardrails de destroy workflow
+# Evidencia 08 - Guardrails de destroy workflow
 
 **Fecha:** 2026-08-25  
 **Punto del plan:** `G4. destroy.sh`

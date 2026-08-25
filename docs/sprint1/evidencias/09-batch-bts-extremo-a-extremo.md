@@ -1,4 +1,4 @@
-# Evidencia 14 - Batch BTS extremo a extremo
+# Evidencia 09 - Batch BTS extremo a extremo
 
 **Fecha:** 2026-08-25  
 **Punto del plan:** `BTS batch demostrable end-to-end`
@@ -77,13 +77,13 @@ Salida observada:
 
 La capa Gold ya tiene evidencia propia de consulta KPI en:
 
-- `docs/sprint1/evidencias/06-bigquery-kpi.txt`
+- `docs/sprint1/evidencias/01-bigquery-kpi.md`
 
 ## Nota sobre el serving batch
 
 La API batch sigue operativa y el serving fue validado por separado en:
 
-- `docs/sprint1/evidencias/07-firestore-serving-normalization.md`
+- `docs/sprint1/evidencias/02-firestore-serving-normalization.md`
 
 ## Conclusiones
 

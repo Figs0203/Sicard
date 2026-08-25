@@ -1,4 +1,4 @@
-# Evidencia 08 - Validacion del skeleton OpenSky
+# Evidencia 03 - Validacion del skeleton OpenSky
 
 **Fecha:** 2026-08-25  
 **Punto del plan:** Workstream C / `C8`

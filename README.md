@@ -206,9 +206,9 @@ Excepciones que deben entenderse al revisar el proyecto:
 
 Referencias:
 
-- `docs/sprint1/evidencias/10-deploy-plan-only-validation.md`
-- `docs/sprint1/evidencias/11-terraform-plan-clean.md`
-- `docs/sprint1/evidencias/12-validation-workflow-pass.md`
+- `docs/sprint1/evidencias/05-deploy-plan-only-validation.md`
+- `docs/sprint1/evidencias/06-terraform-plan-clean.md`
+- `docs/sprint1/evidencias/07-validation-workflow-pass.md`
 
 ## Estado de CI/CD, logging, monitoreo y alertas
 
@@ -244,17 +244,17 @@ Para la presentacion y la entrega, este estado debe comunicarse como:
 
 ### Evidencias
 
-- `docs/sprint1/evidencias/06-bigquery-kpi.txt`
-- `docs/sprint1/evidencias/07-firestore-serving-normalization.md`
-- `docs/sprint1/evidencias/08-validacion-skeleton-opensky.md`
-- `docs/sprint1/evidencias/09-bootstrap-success.md`
-- `docs/sprint1/evidencias/10-deploy-plan-only-validation.md`
-- `docs/sprint1/evidencias/11-terraform-plan-clean.md`
-- `docs/sprint1/evidencias/12-validation-workflow-pass.md`
-- `docs/sprint1/evidencias/13-destroy-workflow-guardrails.md`
-- `docs/sprint1/evidencias/14-batch-bts-extremo-a-extremo.md`
-- `docs/sprint1/evidencias/15-consistencia-id-vuelo.md`
-- `docs/sprint1/evidencias/16-input-productivo-sin-archivos-prueba.md`
+- `docs/sprint1/evidencias/01-bigquery-kpi.md`
+- `docs/sprint1/evidencias/02-firestore-serving-normalization.md`
+- `docs/sprint1/evidencias/03-validacion-skeleton-opensky.md`
+- `docs/sprint1/evidencias/04-bootstrap-success.md`
+- `docs/sprint1/evidencias/05-deploy-plan-only-validation.md`
+- `docs/sprint1/evidencias/06-terraform-plan-clean.md`
+- `docs/sprint1/evidencias/07-validation-workflow-pass.md`
+- `docs/sprint1/evidencias/08-destroy-workflow-guardrails.md`
+- `docs/sprint1/evidencias/09-batch-bts-extremo-a-extremo.md`
+- `docs/sprint1/evidencias/10-consistencia-id-vuelo.md`
+- `docs/sprint1/evidencias/11-input-productivo-sin-archivos-prueba.md`
 
 ### Decisiones tecnicas
 

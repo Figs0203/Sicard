@@ -59,5 +59,5 @@ El repositorio, el README y las evidencias describen Sprint 1 como un walking sk
 ## Referencias
 
 - `docs/decisiones/ADR-001-almacen-canonico-vuelos-y-contrato-de-proyeccion.md`
-- `docs/sprint1/evidencias/11-terraform-plan-clean.md`
-- `docs/sprint1/evidencias/12-validation-workflow-pass.md`
+- `docs/sprint1/evidencias/06-terraform-plan-clean.md`
+- `docs/sprint1/evidencias/07-validation-workflow-pass.md`

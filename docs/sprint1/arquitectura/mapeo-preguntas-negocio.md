@@ -17,9 +17,9 @@ Relacionar cada pregunta de negocio demostrada en Sprint 1 con su fuente, proces
 
 ## Referencias
 
-- `docs/sprint1/evidencias/06-bigquery-kpi.txt`
-- `docs/sprint1/evidencias/07-firestore-serving-normalization.md`
-- `docs/sprint1/evidencias/08-validacion-skeleton-opensky.md`
+- `docs/sprint1/evidencias/01-bigquery-kpi.md`
+- `docs/sprint1/evidencias/02-firestore-serving-normalization.md`
+- `docs/sprint1/evidencias/03-validacion-skeleton-opensky.md`
 - `docs/sprint1/data-assessment/results/dq_summary.csv`
 - `docs/sprint1/modelos/gold-star-schema.md`
 - `docs/sprint1/modelos/serving-schema.md`

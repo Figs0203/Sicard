@@ -1,4 +1,4 @@
-# Evidencia 06 - KPI batch validado en BigQuery
+# Evidencia 01 - KPI batch validado en BigQuery
 
 **Fecha:** 2026-08-25  
 **Punto del plan:** KPI batch verificable

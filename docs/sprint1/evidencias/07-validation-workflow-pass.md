@@ -1,4 +1,4 @@
-# Evidencia 12 - Validation workflow en verde
+# Evidencia 07 - Validation workflow en verde
 
 **Fecha:** 2026-08-25  
 **Punto del plan:** `G3. validate.sh`

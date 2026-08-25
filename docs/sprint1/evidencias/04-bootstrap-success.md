@@ -1,4 +1,4 @@
-# Evidencia 09 - Bootstrap exitoso
+# Evidencia 04 - Bootstrap exitoso
 
 **Fecha:** 2026-08-25  
 **Punto del plan:** `G1. bootstrap.sh`
