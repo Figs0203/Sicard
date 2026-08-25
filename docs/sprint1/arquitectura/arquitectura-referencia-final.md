@@ -100,7 +100,7 @@ FlightTracker integra y organiza informacion de trafico aereo para:
 
 ## Referencias
 
-- `docs/decisiones/ADR-001-canonical-flight-store-and-cassandra-readiness.md`
+- `docs/decisiones/ADR-001-almacen-canonico-vuelos-y-contrato-de-proyeccion.md`
 - `docs/decisiones/ADR-002-alcance-validado-sprint1.md`
 - `docs/sprint1/arquitectura/mapeo-preguntas-negocio.md`
 - `docs/sprint1/modelos/physical.md`
