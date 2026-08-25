@@ -1,18 +1,18 @@
-# Serving Schema
+# Esquema de Serving
 
-## Sprint 1 - estado real
+## Alcance
 
-La capa de serving real en Sprint 1 usa Firestore como proyeccion temporal.
+Este documento describe las colecciones de serving usadas en Sprint 1.
 
 ## Coleccion `flights_v1`
 
 Proposito:
 
-- serving batch para la API REST
+- lectura batch para la API REST
 
-Documento:
+Identificador:
 
-- ID del documento: `flight_id`
+- `flight_id`
 
 Campos canonicos:
 
@@ -46,11 +46,11 @@ Patrones de consulta:
 
 Proposito:
 
-- serving live temporal para la API
+- lectura live del ultimo estado conocido
 
-Documento:
+Identificador:
 
-- ID del documento: `icao24`
+- `icao24`
 
 Campos canonicos:
 
@@ -70,38 +70,6 @@ Campos canonicos:
 
 Patrones de consulta:
 
-- ultimos vuelos live
-- vuelo por `icao24`
-- conteo live
-
-## Target Cassandra documentado
-
-No implementado todavia en Sprint 1.
-
-Tablas objetivo previstas:
-
-### `flights_by_date`
-
-Motivacion:
-
-- consultas por fecha y lectura paginada de vuelos batch
-
-Particion esperada:
-
-- `flight_date`
-
-### `flight_by_id`
-
-Motivacion:
-
-- lookup puntual por identificador de vuelo o evento
-
-### `live_flights_by_icao`
-
-Motivacion:
-
-- lectura rapida del ultimo estado live por aeronave
-
-## Regla de diseno
-
-Primero se definen los patrones de consulta y luego la tabla fisica. Esa es la razon por la cual Cassandra se documenta como target y no como componente ya cerrado en Sprint 1.
+- lista de ultimos vuelos live
+- lectura por `icao24`
+- conteo de vuelos live

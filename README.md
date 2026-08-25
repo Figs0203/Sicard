@@ -1,125 +1,105 @@
-# FlightTracker
+# FlightTracker - Sprint 1
 
-Plataforma DataOps para integrar vuelos historicos BTS, datos maestros OpenFlights y una rama near-real-time basada en OpenSky.
+FlightTracker integra vuelos historicos BTS, maestros OpenFlights y una rama live demostrada del mismo dominio para exponer productos analiticos y operacionales en Google Cloud.
 
-## Estado real de Sprint 1
+## Estado validado al 25 de agosto de 2026
 
-Sprint 1 ya no se evalua como "crear Gold". El estado validado es:
-
-- input BTS limpio
+- input BTS productivo limpio en `gs://flighttracker-raw-bts/bts/bts_flights_corregido.csv`
 - Silver limpio en Parquet
-- Gold corregido en BigQuery
+- Gold corregido en BigQuery con hechos, dimensiones y KPI
 - serving batch en Firestore `flights_v1`
-- API REST en Cloud Run
-- skeleton near-real-time documentado y parcialmente operativo
+- serving live en Firestore `live_flights`
+- API operativa en Cloud Run con `/health`, `/flights` y `/live/*`
+- orquestacion diaria de batch con Cloud Scheduler, Cloud Function y Dataproc
+- scripts reproducibles para bootstrap, plan controlado, validacion y destroy seguro
 
-Estado confirmado al cierre:
+## Aplicacion de usuario final en Sprint 1
 
-- `flighttracker_gold.fact_flights` fue reconstruida sin la duplicacion x9 detectada inicialmente
-- `fact_flights` quedo con `542695` filas, `542695` `flight_id` distintos y `0` nulos
-- `dim_airline`, `dim_airport` y `dim_date` fueron corregidas
-- la API responde `/health`, `/flights` y endpoints `/live/*`
-- `validate.sh` pasa completamente
+El producto consultable del sprint es:
 
-Limitacion conocida:
+- la API REST en Cloud Run
+- las tablas y agregados de BigQuery Gold
 
-- OpenSky no debe presentarse como polling productivo estable desde Cloud Run, porque la llamada real a `opensky-network.org` sigue fallando por timeout desde ese entorno
+URL validada de la API:
 
-Referencia:
+- `https://get-flights-api-310107974919.us-central1.run.app`
 
-- `docs/sprint1/evidencias/08-opensky-streaming-deviation.md`
+Consultas rapidas:
 
-## Arquitectura implementada
-
-### Batch
-
-`BTS CSV -> Cloud Storage RAW -> Eventarc -> split_and_publish_bts -> Pub/Sub -> validate_and_persist_bts -> Firestore -> Scheduler -> start_batch_pipeline -> Dataproc/Spark -> Silver -> Gold BigQuery`
-
-### Serving
-
-- Firestore `flights_v1` para vuelos batch normalizados
-- Firestore `live_flights` para el ultimo estado live por `icao24`
-- Cloud Run `get-flights-api` como capa HTTP
-
-### Datos maestros
-
-- Cloud SQL PostgreSQL con tablas `airlines` y `airports`
-
-Arquitectura de referencia final documentada:
-
-- `docs/sprint1/arquitectura/reference-architecture-final.md`
+```bash
+curl -sS "https://get-flights-api-310107974919.us-central1.run.app/health"
+curl -sS "https://get-flights-api-310107974919.us-central1.run.app/flights?limit=3"
+curl -sS "https://get-flights-api-310107974919.us-central1.run.app/live/flights?limit=3"
+```
 
 ## Estructura del repo
 
 ```text
 Sicard/
-|-- README.md
-|-- CHANGELOG.md
-|-- docs/
-|   |-- decisiones/
-|   `-- sprint1/
-|       |-- arquitectura/
-|       |-- data-assessment/
-|       |-- evidencias/
-|       |-- modelos/
-|       `-- presentacion/
-|-- infrastructure/
-|   |-- scripts/
-|   `-- terraform/
-|-- pipelines/
-|   `-- batch/
-|       `-- spark_jobs/
-|-- backend/
-|   |-- api/
-|   `-- functions/
-|-- database/
-|   `-- scripts/
-|-- frontend/
-|-- tests/
-|-- docker/
-|-- .github/
-`-- .env.example
+├── README.md
+├── CHANGELOG.md
+├── .gitignore
+├── .env.example
+├── docs/
+├── infrastructure/
+├── backend/
+├── pipelines/
+├── database/
+├── frontend/
+├── tests/
+├── docker/
+└── .github/
 ```
 
-Ubicaciones clave:
+## Requisitos
 
-- Terraform: `infrastructure/terraform`
-- Scripts operativos: `infrastructure/scripts`
-- ETL batch BTS: `pipelines/batch/spark_jobs/bts_etl.py`
-- Gold rebuild: `pipelines/batch/spark_jobs/gold_etl_v6.py`
-- API: `backend/api/get_flights`
-- Cloud Functions: `backend/functions`
-- Perfilamiento y DQ: `docs/sprint1/data-assessment`
+Entorno recomendado:
 
-## Requisitos locales
+- Google Cloud Shell
 
-Para ejecutar la reproduccion desde Cloud Shell o una shell equivalente:
+Herramientas requeridas:
 
-- `git`
 - `gcloud`
 - `terraform`
-- `jq`
-- `curl`
-- `bq`
-- `zip`
+- `bash`
 - `python3`
+- `zip`
 
-Adicionalmente:
+Notas:
 
-- sesion activa en GCP con permisos sobre el proyecto
-- acceso de lectura al bucket RAW si se quiere regenerar el profiling
+- `deploy.sh` usa Cloud Build para la imagen de la API, por lo que Docker local no es obligatorio para la ruta validada
+- `bootstrap.sh` acepta `--skip-docker-check`
 
-## Reproduccion rapida de Sprint 1
+## Configuracion del proyecto GCP
 
-### 1. Clonar o actualizar el repo
+Variables base del proyecto:
 
-```bash
-git clone https://github.com/Figs0203/Sicard.git
-cd Sicard
-git pull origin main
-```
+- `PROJECT_ID=flighttracker-505314`
+- `DATA_REGION=us-central1`
+- `BATCH_REGION=us-east1`
+- `API_REGION=us-central1`
 
-### 2. Bootstrap de prerrequisitos
+Referencia de variables:
+
+- `.env.example`
+
+## Recursos principales en GCP
+
+Recursos usados o validados en Sprint 1:
+
+- Cloud Storage: `flighttracker-raw-bts`, `flighttracker-curated-bts`, `flighttracker-scripts`
+- Pub/Sub: `bts-flights-rows`, `bts-flights-dlq`, `opensky-states-v1`, `opensky-states-dlq`
+- Cloud Functions: `validate_and_store_bts`, `split_and_publish_bts`, `validate_and_persist_bts`, `start_batch_pipeline`, `project_opensky_state`
+- Cloud Run: `get-flights-api`, `opensky-producer`
+- BigQuery: dataset `flighttracker_gold`
+- Firestore: colecciones `flights_v1` y `live_flights`
+- Cloud Scheduler: `daily-bts-pipeline`
+- Cloud SQL: `flighttracker-db`
+- Secret Manager: `cloudsql-postgres-password`
+
+## Reproduccion documentada
+
+### 1. Bootstrap
 
 ```bash
 bash infrastructure/scripts/bootstrap.sh \
@@ -127,20 +107,7 @@ bash infrastructure/scripts/bootstrap.sh \
   --skip-docker-check
 ```
 
-Que hace:
-
-- valida herramientas base
-- valida autenticacion en `gcloud`
-- fija el proyecto activo
-- habilita APIs fundacionales
-- verifica o crea el bucket del backend Terraform
-
-Que no hace:
-
-- no ejecuta `terraform apply`
-- no despliega recursos de negocio
-
-### 3. Plan controlado de despliegue
+### 2. Plan controlado
 
 ```bash
 bash infrastructure/scripts/deploy.sh \
@@ -148,39 +115,23 @@ bash infrastructure/scripts/deploy.sh \
   --skip-api-build
 ```
 
-Comportamiento actual:
+Este flujo:
 
-- empaqueta los zips de Cloud Functions gestionadas por Terraform
-- puede subir artefactos a `gs://flighttracker-function-sources`
-- corre `terraform init`, `terraform validate` y `terraform plan`
-- solo ejecuta `apply` si se pasa `--apply`
+- empaqueta artefactos
+- ejecuta `terraform init`
+- ejecuta `terraform validate`
+- ejecuta `terraform plan`
 
-Nota Sprint 1:
+Solo aplica cambios si se invoca con `--apply`.
 
-- el workflow fue validado en modo `plan-only`
-- no se debe correr `terraform apply` a ciegas fuera del procedimiento acordado del equipo
-
-### 4. Validacion operativa
+### 3. Validacion operativa
 
 ```bash
 bash infrastructure/scripts/validate.sh \
   --project-id flighttracker-505314
 ```
 
-Checks incluidos:
-
-- `terraform validate`
-- API `/health`
-- API `/flights`
-- API `/live/flights`
-- existencia del topic Pub/Sub batch
-- probe de Firestore
-- filas en BigQuery Gold
-- visibilidad del ultimo job de Dataproc
-- existencia del Scheduler batch
-- presencia del reporte DQ
-
-Resultado esperado validado:
+Resultado esperado:
 
 ```text
 PASS  terraform validate
@@ -195,9 +146,7 @@ PASS  scheduler job exists
 PASS  dq report presence
 ```
 
-### 5. Regenerar profiling y DQ
-
-Si ya tienes permisos sobre el bucket RAW:
+### 4. Profiling y calidad de datos
 
 ```bash
 gcloud storage cp \
@@ -213,97 +162,115 @@ python3 docs/sprint1/data-assessment/generate_profiles.py \
   --opensky-json /tmp/opensky_live_sample.json
 ```
 
-Salida esperada:
-
-- `docs/sprint1/data-assessment/results/bts_profile.json`
-- `docs/sprint1/data-assessment/results/openflights_airlines_profile.json`
-- `docs/sprint1/data-assessment/results/openflights_airports_profile.json`
-- `docs/sprint1/data-assessment/results/opensky_profile.json`
-- `docs/sprint1/data-assessment/results/dq_summary.csv`
-
-Valores validados para `dq_summary.csv`:
-
-```text
-dataset,row_count,completeness,validity,uniqueness,consistency,accuracy_proxy,dq_score
-bts,544003,0.9083,1.0,1.0,1.0,1.0,0.9725
-openflights_airlines,6162,0.2493,0.9969,0.7298,0.9969,1.0,0.7195
-openflights_airports,7698,1.0,0.9999,1.0,0.9999,1.0,0.9999
-opensky,1,1.0,1.0,1.0,1.0,0.0,0.9
-```
-
 ## Scripts operativos
 
-### `bootstrap.sh`
+- `infrastructure/scripts/bootstrap.sh`: prepara prerrequisitos base
+- `infrastructure/scripts/deploy.sh`: empaqueta artefactos y corre Terraform en modo controlado
+- `infrastructure/scripts/validate.sh`: valida el estado observable del sprint
+- `infrastructure/scripts/destroy.sh`: documenta destroy seguro con guardrails
 
-Prepara prerrequisitos fundacionales del proyecto.
+## Pruebas y verificacion
 
-### `deploy.sh`
+Prueba integrada principal:
 
-Empaqueta artefactos y ejecuta Terraform en modo controlado.
+- `bash infrastructure/scripts/validate.sh --project-id flighttracker-505314`
 
-### `validate.sh`
+Verificaciones rapidas adicionales:
 
-Corre la validacion reproducible de Sprint 1.
+- API `/health`
+- API `/flights`
+- API `/live/flights`
+- conteo de `fact_flights` en BigQuery
+- profiling reproducible en `docs/sprint1/data-assessment/results/`
 
-### `destroy.sh`
+## Manejo de secretos y credenciales
 
-Workflow seguro para destruccion controlada.
+- no se incluyen credenciales reales en el repositorio
+- las variables sensibles se ejemplifican en `.env.example`
+- la clave de Cloud SQL debe manejarse mediante Secret Manager
+- `.gitignore` excluye `.env`, secretos locales, estados de Terraform y archivos sensibles
 
-Guardrails:
+## Estado de automatizacion y excepciones del entorno actual
 
-- requiere `--confirm destroy-<env>-<project-id>`
-- bloquea `prod` salvo que se pase `--allow-prod`
-- preserva el backend remoto por defecto
+Estado observado en Sprint 1:
 
-## Modelos y contratos
+- `bootstrap.sh`, `deploy.sh`, `validate.sh` y `destroy.sh` existen y fueron validados
+- `deploy.sh` deja evidencia reproducible de empaquetado y `terraform plan`
+- `validate.sh` verifica el estado funcional del sprint
 
-- Modelo conceptual: `docs/sprint1/modelos/conceptual.md`
-- Modelo logico: `docs/sprint1/modelos/logical.md`
-- Modelo fisico: `docs/sprint1/modelos/physical.md`
-- Esquema Gold: `docs/sprint1/modelos/gold-star-schema.md`
-- Esquema serving: `docs/sprint1/modelos/serving-schema.md`
-- Esquema Cloud SQL: `docs/sprint1/modelos/cloudsql-schema.sql`
+Excepciones que deben entenderse al revisar el proyecto:
 
-## Evidencias clave
+- el entorno validado no se presenta como recreado completamente desde cero con un unico `terraform apply`
+- `deploy.sh` bloquea `apply` si detecta drift conocido de Terraform
+- parte del entorno live actual fue validado sobre recursos ya existentes del proyecto
 
-- Gold y KPI batch: `docs/sprint1/evidencias/06-bigquery-kpi.txt`
-- Serving batch normalizado: `docs/sprint1/evidencias/07-firestore-serving-normalization.md`
-- Desviacion OpenSky: `docs/sprint1/evidencias/08-opensky-streaming-deviation.md`
-- Bootstrap: `docs/sprint1/evidencias/09-bootstrap-success.md`
-- Deploy plan-only: `docs/sprint1/evidencias/10-deploy-plan-only-validation.md`
-- Terraform clean plan: `docs/sprint1/evidencias/11-terraform-plan-clean.md`
-- Validation workflow: `docs/sprint1/evidencias/12-validation-workflow-pass.md`
-- Destroy guardrails: `docs/sprint1/evidencias/13-destroy-workflow-guardrails.md`
+Referencias:
 
-## Mapeo de negocio
+- `docs/sprint1/evidencias/10-deploy-plan-only-validation.md`
+- `docs/sprint1/evidencias/11-terraform-plan-clean.md`
+- `docs/sprint1/evidencias/12-validation-workflow-pass.md`
 
-La relacion entre pregunta de negocio, fuente, transformacion y producto quedo documentada en:
+## Estado de CI/CD, logging, monitoreo y alertas
 
-- `docs/sprint1/arquitectura/business-question-mapping.md`
+Estado de Sprint 1:
 
-## Desviaciones aceptadas
+- CI/CD dedicado: no implementado
+- monitoreo y alertas dedicadas: no implementados
+- logging operativo: disponible a traves de los logs nativos de GCP
 
-Las desviaciones formales de Sprint 1 quedaron consolidadas en:
+Para la presentacion y la entrega, este estado debe comunicarse como:
 
-- `docs/decisiones/ADR-002-sprint1-accepted-deviations.md`
+- implementado cuando exista evidencia
+- planificado cuando no exista implementacion todavia
 
-Temas cubiertos:
+## Documentos clave
 
-- Cassandra pospuesta
-- Airflow o Composer no implementado
-- Firestore como store temporal
-- separacion regional `us-central1` y `us-east1`
+### Arquitectura
 
-## Restricciones y deudas abiertas
+- `docs/sprint1/implementation.md`
+- `docs/sprint1/arquitectura/arquitectura-referencia-final.md`
+- `docs/sprint1/arquitectura/mapeo-preguntas-negocio.md`
+- `docs/sprint1/arquitectura/mapeo-tecnologico-gcp.md`
+- `docs/sprint1/arquitectura/flujo-implementado-sprint1.md`
 
-- OpenSky sigue como desviacion aceptada, no como flujo productivo estable
-- Cassandra sigue documentado como target, no como implementacion cerrada
-- faltan tareas de minimo privilegio, alertamiento y cierre de deuda operativa
-- no se debe presentar Terraform como reproduccion total fuera del alcance validado del Sprint 1
+### Modelos
+
+- `docs/sprint1/modelos/conceptual.md`
+- `docs/sprint1/modelos/logical.md`
+- `docs/sprint1/modelos/physical.md`
+- `docs/sprint1/modelos/gold-star-schema.md`
+- `docs/sprint1/modelos/serving-schema.md`
+- `docs/sprint1/modelos/cloudsql-schema.sql`
+
+### Evidencias
+
+- `docs/sprint1/evidencias/06-bigquery-kpi.txt`
+- `docs/sprint1/evidencias/07-firestore-serving-normalization.md`
+- `docs/sprint1/evidencias/08-validacion-skeleton-opensky.md`
+- `docs/sprint1/evidencias/09-bootstrap-success.md`
+- `docs/sprint1/evidencias/10-deploy-plan-only-validation.md`
+- `docs/sprint1/evidencias/11-terraform-plan-clean.md`
+- `docs/sprint1/evidencias/12-validation-workflow-pass.md`
+- `docs/sprint1/evidencias/13-destroy-workflow-guardrails.md`
+- `docs/sprint1/evidencias/14-batch-bts-extremo-a-extremo.md`
+- `docs/sprint1/evidencias/15-consistencia-id-vuelo.md`
+- `docs/sprint1/evidencias/16-input-productivo-sin-archivos-prueba.md`
+
+### Decisiones tecnicas
+
+- `docs/decisiones/ADR-001-almacen-canonico-vuelos-y-contrato-de-proyeccion.md`
+- `docs/decisiones/ADR-002-alcance-validado-sprint1.md`
+
+## Codigo relevante
+
+- ETL batch BTS: `pipelines/batch/spark_jobs/bts_etl.py`
+- ETL Gold: `pipelines/batch/spark_jobs/etl_gold_modelo_estrella.py`
+- API: `backend/api/get_flights/`
+- funciones batch: `backend/functions/`
+- productor live: `pipelines/streaming/productor_opensky/`
 
 ## Equipo
 
 - Agustin Figueroa Sierra
 - Gabriela Lucia Martinez Mercado
-- Juan Carlos Munoz Trejos
-- Juan Simon Ospina Martinez
+- Juan Simon Ospina Marulanda

@@ -2,28 +2,26 @@
 
 ## Alcance
 
-Este documento describe unicamente estructuras fisicas reales o explicitamente preparadas en Sprint 1.
+Este documento resume las estructuras fisicas usadas en Sprint 1.
 
 ## Cloud SQL
 
-Base transaccional maestra usada para OpenFlights:
+Base transaccional maestra para OpenFlights:
 
 - tabla `airlines`
 - tabla `airports`
 
-Documento detallado:
+Referencia:
 
 - `cloudsql-schema.sql`
 
 ## Firestore
 
-Colecciones reales en Sprint 1:
+Colecciones operativas:
 
 ### `flights_v1`
 
-Proyeccion operacional batch normalizada.
-
-Campos relevantes:
+Campos clave:
 
 - `flight_id`
 - `event_id`
@@ -47,9 +45,7 @@ Campos relevantes:
 
 ### `live_flights`
 
-Proyeccion temporal de OpenSky.
-
-Campos relevantes:
+Campos clave:
 
 - `icao24`
 - `event_id`
@@ -67,11 +63,11 @@ Campos relevantes:
 
 ## BigQuery Gold
 
-Dataset real:
+Dataset:
 
 - `flighttracker_gold`
 
-Tablas reales:
+Tablas:
 
 - `fact_flights`
 - `dim_airline`
@@ -80,14 +76,6 @@ Tablas reales:
 - `agg_on_time_performance`
 - `agg_delay_distribution`
 
-Documento detallado:
+Referencia:
 
 - `gold-star-schema.md`
-
-## Serving target documentado
-
-Para Sprint 2 se documenta el target Cassandra, pero no se presenta como implementado en Sprint 1.
-
-Documento detallado:
-
-- `serving-schema.md`

@@ -58,6 +58,12 @@ def canonical_upper(column):
     return upper(canonical_string(column))
 
 
+def canonical_dep_time(column):
+    # Alinea el hash analitico con el contrato operacional para que
+    # 930.0 y 930 produzcan el mismo identificador.
+    return coalesce(column.cast(IntegerType()).cast("string"), lit(""))
+
+
 def build_flight_id(df):
     business_identity = concat(
         date_format(col("FL_DATE"), "yyyy-MM-dd"),
@@ -70,7 +76,7 @@ def build_flight_id(df):
         lit("|"),
         canonical_upper(col("DEST")),
         lit("|"),
-        canonical_string(col("DEP_TIME")),
+        canonical_dep_time(col("DEP_TIME")),
     )
     return df.withColumn("flight_id", sha2(business_identity, 256))
 

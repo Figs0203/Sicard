@@ -1,8 +1,4 @@
-"""Persistence port for the FlightTracker read API.
-
-The API depends on this contract, not on a particular database SDK. Cassandra
-will implement the same contract during the migration from Firestore.
-"""
+"""Puerto de persistencia para la API de lectura de FlightTracker."""
 
 from typing import Optional, Protocol
 
@@ -24,7 +20,7 @@ class FlightRepository(Protocol):
 
 
 class FirestoreFlightRepository:
-    """Temporary Firestore projection implementation of the read port."""
+    """Implementacion del puerto de lectura usando Firestore."""
 
     def __init__(self) -> None:
         self._db = firestore.Client()

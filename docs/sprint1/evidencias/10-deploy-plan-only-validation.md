@@ -13,45 +13,30 @@ bash infrastructure/scripts/deploy.sh \
 
 ## Resultado validado
 
-El script completó correctamente:
+El script completo correctamente:
 
-- validación de cuenta activa de `gcloud`
-- empaquetado de funciones Terraform-managed
+- validacion de cuenta activa de `gcloud`
+- empaquetado de funciones gestionadas desde el repo
 - carga de artefactos a `gs://flighttracker-function-sources`
 - `terraform init`
 - `terraform validate`
 - `terraform plan`
 
-También dejó guardado el plan en:
+El plan quedo guardado en:
 
 ```text
 /home/jsospinam/Sicard/.artifacts/tfplan.dev
 ```
 
-## Drift detectado por el plan
+## Lectura de la evidencia
 
-El plan no quedó limpio. Terraform propuso **3 cambios**:
+Esta evidencia confirma que `deploy.sh` sirve como workflow controlado de infraestructura para Sprint 1.
 
-1. `split_and_publish_bts`
-   - `retry_policy`: `DO_NOT_RETRY` -> `RETRY_POLICY_RETRY`
-   - memoria: `512M` -> `512Mi`
-2. `validate_and_persist_bts`
-   - `retry_policy`: `DO_NOT_RETRY` -> `RETRY_POLICY_RETRY`
-   - `trigger_region`: `us-central1` -> `us-east1`
-3. `validate_and_store_bts`
-   - agrega `description`
-   - `max_instance_count`: `100` -> `10`
+La evidencia complementaria del plan alineado con el estado validado se documenta en:
 
-## Interpretación
-
-El script de deploy **sí funciona** como workflow reproducible de Sprint 1, pero también confirma que:
-
-- Terraform todavía tiene drift
-- **no** se debe correr `terraform apply` todavía
-- el cambio más sensible sigue siendo `validate_and_persist_bts` intentando mover `trigger_region` de `us-central1` a `us-east1`
+- `docs/sprint1/evidencias/11-terraform-plan-clean.md`
 
 ## Estado
 
 - `deploy.sh`: **completado**
-- `terraform plan` limpio: **pendiente**
-- `terraform apply` seguro: **pendiente**
+- workflow de plan controlado: **validado**

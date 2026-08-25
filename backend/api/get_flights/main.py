@@ -8,7 +8,7 @@ from repository import FirestoreFlightRepository, FlightRepository
 
 app = FastAPI(title="FlightTracker API", description="API para consultar vuelos procesados")
 
-# Cassandra will replace this adapter without changing the HTTP contract.
+# La API depende de un puerto logico de lectura, no de un SDK especifico.
 repository: FlightRepository = FirestoreFlightRepository()
 
 @app.get("/flights")
