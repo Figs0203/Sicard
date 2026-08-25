@@ -53,6 +53,22 @@ require_command() {
   command -v "${cmd}" >/dev/null 2>&1 || fail "Required command not found: ${cmd}"
 }
 
+require_terraform_usable() {
+  local output
+  local status
+
+  set +e
+  output="$(terraform version 2>&1)"
+  status=$?
+  set -e
+
+  if [[ ${status} -ne 0 ]] || grep -q "Follow the instructions at https://developer.hashicorp.com/terraform/install" <<<"${output}"; then
+    fail "Terraform CLI is not usable in this shell. Install it first and rerun bootstrap.sh."
+  fi
+
+  log "Terraform available: $(head -n 1 <<<"${output}")"
+}
+
 read_backend_bucket() {
   if [[ -f "${BACKEND_FILE}" ]]; then
     awk -F'"' '/bucket[[:space:]]*=/ {print $2; exit}' "${BACKEND_FILE}"
@@ -182,6 +198,7 @@ done
 
 require_command gcloud
 require_command terraform
+require_terraform_usable
 
 if [[ "${SKIP_DOCKER_CHECK}" == "false" ]]; then
   require_command docker

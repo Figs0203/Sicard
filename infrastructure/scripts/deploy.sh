@@ -55,6 +55,22 @@ require_command() {
   command -v "${cmd}" >/dev/null 2>&1 || fail "Required command not found: ${cmd}"
 }
 
+require_terraform_usable() {
+  local output
+  local status
+
+  set +e
+  output="$(terraform version 2>&1)"
+  status=$?
+  set -e
+
+  if [[ ${status} -ne 0 ]] || grep -q "Follow the instructions at https://developer.hashicorp.com/terraform/install" <<<"${output}"; then
+    fail "Terraform CLI is not usable in this shell. Install it first and rerun deploy.sh."
+  fi
+
+  log "Terraform available: $(head -n 1 <<<"${output}")"
+}
+
 require_active_gcloud_account() {
   local active_account
   active_account="$(gcloud auth list --filter=status:ACTIVE --format='value(account)' 2>/dev/null | head -n 1)"
@@ -118,6 +134,7 @@ terraform_init_validate_plan() {
       -var="region=${BATCH_REGION}" \
       -var="data_region=${DATA_REGION}"
   )
+  [[ -s "${plan_file}" ]] || fail "Terraform plan did not produce a usable plan file: ${plan_file}"
   log "Terraform plan created: ${plan_file}"
 }
 
@@ -224,6 +241,7 @@ done
 require_command gcloud
 require_command terraform
 require_command zip
+require_terraform_usable
 
 require_active_gcloud_account
 gcloud config set project "${PROJECT_ID}" >/dev/null
