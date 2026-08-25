@@ -9,6 +9,7 @@ DQ_DIR="${REPO_ROOT}/docs/sprint1/data-assessment"
 DEFAULT_ENV="dev"
 DEFAULT_DATA_REGION="us-central1"
 DEFAULT_BATCH_REGION="us-east1"
+DEFAULT_API_REGION="us-central1"
 DEFAULT_BIGQUERY_DATASET="flighttracker_gold"
 DEFAULT_BIGQUERY_TABLE="fact_flights"
 DEFAULT_API_SERVICE="get-flights-api"
@@ -26,6 +27,7 @@ Options:
   --env <dev|test|prod>          Logical environment label. Default: dev
   --data-region <region>         Region for data-plane services. Default: us-central1
   --batch-region <region>        Region for batch/orchestration services. Default: us-east1
+  --api-region <region>          Region for Cloud Run API checks. Default: us-central1
   --api-service <name>           Cloud Run API service name. Default: get-flights-api
   --scheduler-job <name>         Scheduler job name. Default: daily-bts-pipeline
   --pubsub-topic <name>          Topic to validate. Default: bts-flights-rows
@@ -107,7 +109,7 @@ check_terraform_validate() {
 fetch_api_url() {
   gcloud run services describe "${API_SERVICE}" \
     --project="${PROJECT_ID}" \
-    --region="${BATCH_REGION}" \
+    --region="${API_REGION}" \
     --format='value(status.url)'
 }
 
@@ -179,6 +181,7 @@ ENV_NAME="${DEFAULT_ENV}"
 PROJECT_ID="${PROJECT_ID:-}"
 DATA_REGION="${DATA_REGION:-${DEFAULT_DATA_REGION}}"
 BATCH_REGION="${BATCH_REGION:-${DEFAULT_BATCH_REGION}}"
+API_REGION="${API_REGION:-${DEFAULT_API_REGION}}"
 API_SERVICE="${API_SERVICE:-${DEFAULT_API_SERVICE}}"
 SCHEDULER_JOB="${SCHEDULER_JOB:-${DEFAULT_SCHEDULER_JOB}}"
 PUBSUB_TOPIC="${PUBSUB_TOPIC:-${DEFAULT_PUBSUB_TOPIC}}"
@@ -202,6 +205,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --batch-region)
       BATCH_REGION="${2:-}"
+      shift 2
+      ;;
+    --api-region)
+      API_REGION="${2:-}"
       shift 2
       ;;
     --api-service)
@@ -258,6 +265,7 @@ log "Environment label: ${ENV_NAME}"
 log "Project id       : ${PROJECT_ID}"
 log "Data region      : ${DATA_REGION}"
 log "Batch region     : ${BATCH_REGION}"
+log "API region       : ${API_REGION}"
 
 run_check "terraform validate" check_terraform_validate
 run_check "api health" check_api_health
