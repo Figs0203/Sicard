@@ -2,7 +2,7 @@
 
 FlightTracker integra vuelos historicos BTS, maestros OpenFlights y una rama live demostrada del mismo dominio para exponer productos analiticos y operacionales en Google Cloud.
 
-## Estado validado al 25 de agosto de 2026
+## Estado actual
 
 - input BTS productivo limpio en `gs://flighttracker-raw-bts/bts/bts_flights_corregido.csv`
 - Silver limpio en Parquet
@@ -271,6 +271,7 @@ Para la presentacion y la entrega, este estado debe comunicarse como:
 
 ## Equipo
 
-- Agustin Figueroa Sierra
-- Gabriela Lucia Martinez Mercado
-- Juan Simon Ospina Marulanda
+- Agustin Figueroa 
+- Gabriela  Martinez 
+- Juan Simon Ospina
+- Juan Carlos Muñoz
