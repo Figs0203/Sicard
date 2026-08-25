@@ -4,7 +4,7 @@ variable "project_id" {
 }
 
 variable "region" {
-  description = "Región de GCP"
+  description = "Region de GCP"
   type        = string
   default     = "us-east1"
 }
@@ -34,7 +34,7 @@ variable "pubsub_topic" {
 }
 
 variable "pubsub_subscription" {
-  description = "Nombre de la suscripción de Pub/Sub"
+  description = "Nombre de la suscripcion de Pub/Sub"
   type        = string
   default     = "bts-flights-sub"
 }
@@ -57,8 +57,29 @@ variable "cloud_sql_instance" {
   default     = "flighttracker-db"
 }
 
+variable "cloud_sql_ssl_mode" {
+  description = "SSL mode enforced for Cloud SQL public connectivity."
+  type        = string
+  default     = "ENCRYPTED_ONLY"
+}
+
+variable "cloud_sql_authorized_networks" {
+  description = "Explicit allowlist for Cloud SQL public IP access. Leave empty to avoid broad public CIDRs."
+  type = list(object({
+    name  = string
+    value = string
+  }))
+  default = []
+}
+
+variable "cloud_sql_password_secret_id" {
+  description = "Secret Manager secret id that stores the rotated Cloud SQL password."
+  type        = string
+  default     = "cloudsql-postgres-password"
+}
+
 variable "data_region" {
-  description = "Región para datos (buckets y Cloud SQL)"
+  description = "Region para datos (buckets y Cloud SQL)"
   type        = string
   default     = "us-central1"
 }

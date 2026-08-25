@@ -64,10 +64,14 @@ resource "google_sql_database_instance" "postgres" {
 
     ip_configuration {
       ipv4_enabled = true
-      ssl_mode     = "ALLOW_UNENCRYPTED_AND_ENCRYPTED"
-      authorized_networks {
-        name  = "cloudshell"
-        value = "0.0.0.0/0"
+      ssl_mode     = var.cloud_sql_ssl_mode
+
+      dynamic "authorized_networks" {
+        for_each = var.cloud_sql_authorized_networks
+        content {
+          name  = authorized_networks.value.name
+          value = authorized_networks.value.value
+        }
       }
     }
   }
@@ -80,14 +84,22 @@ resource "google_sql_database" "postgres_db" {
   instance = google_sql_database_instance.postgres.name
 }
 
+resource "google_secret_manager_secret" "cloud_sql_password" {
+  secret_id = var.cloud_sql_password_secret_id
+
+  replication {
+    auto {}
+  }
+}
+
 # ============================================
 # 4. CLOUD FUNCTIONS (2nd gen) - COMPLETAS
 # ============================================
 
-# Función 1: validate_and_store_bts (HTTP trigger)
+# Funcion 1: validate_and_store_bts (HTTP trigger)
 resource "google_cloudfunctions2_function" "validate_and_store" {
-  name        = "validate_and_store_bts"
-  location    = var.data_region
+  name     = "validate_and_store_bts"
+  location = var.data_region
 
   build_config {
     runtime     = "python311"
@@ -111,7 +123,7 @@ resource "google_cloudfunctions2_function" "validate_and_store" {
   }
 }
 
-# Función 2: split_and_publish_bts (activada por Eventarc)
+# Funcion 2: split_and_publish_bts (activada por Eventarc)
 resource "google_cloudfunctions2_function" "split_and_publish" {
   name        = "split_and_publish_bts"
   location    = var.data_region
@@ -151,7 +163,7 @@ resource "google_cloudfunctions2_function" "split_and_publish" {
   }
 }
 
-# Función 3: validate_and_persist_bts (Pub/Sub trigger)
+# Funcion 3: validate_and_persist_bts (Pub/Sub trigger)
 resource "google_cloudfunctions2_function" "validate_and_persist" {
   name        = "validate_and_persist_bts"
   location    = var.data_region
@@ -189,7 +201,7 @@ resource "google_cloudfunctions2_function" "validate_and_persist" {
 resource "google_cloudfunctions2_function" "start_batch_pipeline" {
   name        = "start_batch_pipeline"
   location    = "us-east1"
-  description = "Orquesta la ejecución diaria del pipeline batch"
+  description = "Orquesta la ejecucion diaria del pipeline batch"
 
   build_config {
     runtime     = "python311"
@@ -265,7 +277,7 @@ resource "google_cloud_run_service" "get_flights_api" {
   }
 }
 
-# Permiso para que cualquier usuario (incluyendo no autenticados) pueda invocar la API
+# Permiso para que cualquier usuario pueda invocar la API
 resource "google_cloud_run_service_iam_member" "public_invoke" {
   service  = google_cloud_run_service.get_flights_api.name
   location = google_cloud_run_service.get_flights_api.location
@@ -287,28 +299,24 @@ data "google_project" "project" {
 # ============================================
 # 9. IAM (PERMISOS)
 # ============================================
-# Permiso para que Eventarc pueda leer el bucket
 resource "google_storage_bucket_iam_member" "eventarc_viewer" {
   bucket = var.bucket_raw
   role   = "roles/storage.objectViewer"
   member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-eventarc.iam.gserviceaccount.com"
 }
 
-# Permiso para que Eventarc pueda publicar en Pub/Sub
 resource "google_project_iam_member" "eventarc_publisher" {
   project = var.project_id
   role    = "roles/pubsub.publisher"
   member  = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-eventarc.iam.gserviceaccount.com"
 }
 
-# Permiso para que la función de orquestación pueda crear clústeres Dataproc
 resource "google_project_iam_member" "orchestrator_dataproc" {
   project = var.project_id
   role    = "roles/dataproc.admin"
   member  = "serviceAccount:${data.google_service_account.function_sa.email}"
 }
 
-# Permiso para que la función de orquestación pueda leer/escribir en GCS
 resource "google_project_iam_member" "orchestrator_storage" {
   project = var.project_id
   role    = "roles/storage.objectAdmin"
