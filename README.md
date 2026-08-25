@@ -69,7 +69,7 @@ Grafana (Dashboards) / Clientes HTTP
 |:---|:---|:---|:---|:---:|
 | **BTS On-Time Performance** | Historica | Batch (CSV) | 545,003 registros (Enero 2026) | Procesado en Silver |
 | **OpenFlights** | Maestra | Batch | 14,110 aeropuertos, 6,162 aerolineas | Cargado en PostgreSQL |
-| **OpenSky Network** | Telemetria | Streaming (API) | Snapshot de vuelos activos | Productor listo, consumidor pendiente (Sprint 2) |
+| **OpenSky Network** | Telemetria | Streaming (API) | Snapshot de vuelos activos | Skeleton parcial validado; polling real desde Cloud Run bloqueado por timeout |
 
 ---
 
@@ -78,10 +78,35 @@ Grafana (Dashboards) / Clientes HTTP
 - Pipeline batch funcional end-to-end con datos reales.
 - Idempotencia garantizada (`flight_id` como hash de clave de negocio).
 - Capa Silver generada en Parquet (55.78 MiB) actualizada diariamente.
+- Capa Gold reconstruida y validada en BigQuery sin la duplicacion x9 detectada inicialmente.
 - API REST operativa con `flight_id`, `carrier`, `flight_number`.
+- Endpoints live operativos sobre `live_flights` en Firestore.
 - Infraestructura gestionada con Terraform.
 - ADR (Architecture Decision Record) documentando la migracion a Cassandra.
 - Orquestacion automatizada diaria (Cloud Scheduler + Cloud Function).
+
+## Estado Real de OpenSky en Sprint 1
+
+El proyecto ya tiene un walking skeleton funcional para la rama near-real-time:
+
+`Cloud Run (opensky-producer) -> Pub/Sub (opensky-states-v1) -> project_opensky_state -> Firestore (live_flights) -> API /live/*`
+
+Lo que **si** quedo validado:
+
+- el productor despliega y responde `/health`
+- el topic dedicado `opensky-states-v1` existe
+- el consumer `project_opensky_state` proyecta eventos a `live_flights`
+- la API expone `/live/flights`, `/live/flights/{icao24}` y `/live/count`
+
+Lo que **no** quedo resuelto al cierre de Sprint 1:
+
+- la llamada real desde Cloud Run hacia `opensky-network.org` sigue fallando por timeout
+- por tanto, no se debe presentar el polling real de OpenSky como flujo operativo estable
+- el scheduler `poll-opensky` no se considera criterio de aceptacion cerrado
+
+La desviacion formal y su evidencia quedaron documentadas en:
+
+- `docs/sprint1/evidencias/08-opensky-streaming-deviation.md`
 
 ---
 
@@ -106,25 +131,58 @@ DQS = 0.30(Completitud) + 0.25(Validez) + 0.20(Unicidad) + 0.15(Consistencia) + 
 
 ```
 Sicard/
-├── README.md                          # Este archivo
-├── Sprint-0/
-│   ├── Sprint0.pdf                    # Propuesta inicial y arquitectura conceptual
-│   └── sicard.docx                    # Documentación preliminar
-└── Sprint-1/
-    ├── flighttracker-pipeline/        # Código fuente completo del Sprint 1
-    │   ├── functions/                 # Cloud Functions (validate, split, persist, orquestador)
-    │   ├── spark_jobs/                # Script de ETL (PySpark)
-    │   ├── api/
-    │   │   └── get_flights/           # API REST (FastAPI + repositorio)
-    │   ├── scripts/                   # Scripts auxiliares (carga de OpenFlights)
-    │   └── docs/                      # Documentación (ADR, guías)
-    ├── flighttracker-terraform/       # Infraestructura como código
-    │   ├── main.tf                    # Recursos principales
-    │   ├── variables.tf               # Variables de entrada
-    │   └── migration.tf               # Migración de estado (suscripciones)
-    ├── FlightTracker_Perfilamiento.ipynb  # Notebook de perfilamiento (Fase 2)
-    └── README.md                      # Documentación detallada del Sprint 1
+├── README.md
+├── CHANGELOG.md
+├── .gitignore
+├── .env.example
+├── docs/
+│   ├── sprint0/                       # Entregables y material histórico de Sprint 0
+│   ├── sprint1/                       # Documentación operativa y evidencia de Sprint 1
+│   │   ├── arquitectura/
+│   │   ├── data-assessment/
+│   │   ├── evidencias/
+│   │   ├── modelos/
+│   │   ├── presentacion/
+│   │   └── implementation.md
+│   └── decisiones/                    # ADRs y decisiones técnicas
+├── infrastructure/
+│   ├── terraform/                     # Terraform canónico del proyecto
+│   │   ├── modules/
+│   │   ├── environments/
+│   │   ├── backend.tf
+│   │   ├── main.tf
+│   │   ├── migration.tf
+│   │   ├── outputs.tf
+│   │   ├── variables.tf
+│   │   └── versions.tf
+│   └── scripts/                       # Bootstrap/deploy/validate/destroy
+├── pipelines/
+│   └── batch/
+│       └── spark_jobs/                # ETL batch BTS y futuras jobs analíticas
+├── backend/
+│   ├── api/                           # API REST y repositorios
+│   └── functions/                     # Cloud Functions del pipeline operacional
+├── database/
+│   └── scripts/                       # Seeds y utilidades de base de datos
+├── frontend/
+├── tests/
+│   ├── unit/
+│   ├── integration/
+│   └── smoke/
+├── docker/
+└── .github/
+    └── workflows/
 ```
+
+### Ubicaciones clave actuales
+
+- Terraform: `infrastructure/terraform`
+- ETL batch BTS: `pipelines/batch/spark_jobs/bts_etl.py`
+- API FastAPI: `backend/api/get_flights`
+- Cloud Functions: `backend/functions/*`
+- Seed OpenFlights: `database/scripts/seed_openflights.py`
+- ADR principal: `docs/decisiones/ADR-001-canonical-flight-store-and-cassandra-readiness.md`
+- Documento operativo de Sprint 1: `docs/sprint1/implementation.md`
 
 ---
 
@@ -133,8 +191,8 @@ Sicard/
 1. Migrar a **Cassandra** como capa de serving (baja latencia <500 ms).
    - Adaptador `CassandraFlightRepository` para la API.
    - Proyeccion en paralelo desde Firestore y backfill desde Silver.
-2. Implementar el **consumidor de streaming** (OpenSky -> Spark Structured Streaming -> Cassandra).
-3. Generar la **capa Gold** (modelo en estrella) con BigQuery o Parquet.
+2. Resolver la conectividad real entre Cloud Run y OpenSky para habilitar polling automatico estable.
+3. Migrar la proyeccion near-real-time desde Firestore temporal hacia Cassandra.
 4. **Gobernanza avanzada**: OpenMetadata, Great Expectations, linaje de datos.
 5. **DataOps**: CI/CD con GitHub Actions, Dockerizacion de funciones.
 6. **Dashboards en Grafana**: Visualizacion de KPIs operacionales (puntualidad, retrasos, cancelaciones).
